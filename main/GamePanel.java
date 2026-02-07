@@ -11,27 +11,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	
 	private Thread gameThread;
 	private final int FPS = 60;
-	private boolean up, down, left, right;
-	private float playerY = 300;
-	private float playerX = 100;
-	private int playerSpeed = 5;
-	private int playerSize = 50;
+	private Player player = new Player(this);
+	public int groundY = 400;
 	
-	//Player physics
-	private float yVelocity = 0;
-	private float gravity = 0.5f;
-	private float jumpStrength = -10f;
-	
-	//State
-	private boolean onGround = false;
-	
-	//private int bulletSize = 10;
-	//private int bulletSpeed = 10;
 	public GamePanel() {
 		setBackground(Color.BLACK);
 		setFocusable(true);
-		requestFocusInWindow();
 		addKeyListener(this);
+		requestFocusInWindow();
 		startGameThread();
 	}
 	
@@ -51,6 +38,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 			lastTime = currentTime;
 			
 			if(delta >= 1) {
+				player.update();
 				update();
 				repaint();
 				delta--;
@@ -60,45 +48,24 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	
 	private void update() {
 		
-		yVelocity += gravity;
-		playerY += yVelocity;
-		
-		//Ground collision
-		
-		int groundY = 400;
-		
-		if(playerY + playerSize >= groundY) {
-			playerY = groundY - playerSize;
-			yVelocity = 0;
-			onGround = true;
-		}
-		if (up == true) playerY -= playerSpeed;
-		if (down == true) playerY += playerSpeed;
-		if (left == true) playerX -= playerSpeed;
-		if (right == true) playerX += playerSpeed;
 	}
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
-		//Example drawing
-		
-		g.setColor(Color.WHITE);
-		g.fillRect((int)playerX, (int)playerY, playerSize, playerSize);
+		player.draw(g);
 	}
 	
-	@Override
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 		
-		if (key == KeyEvent.VK_W || key == KeyEvent.VK_UP) up = true;
-		if (key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN) down = true;
-		if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) left = true;
-		if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) right = true;
+		if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) player.leftPressed = true;
+		if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) player.rightPressed = true;
 		
-		if(key == KeyEvent.VK_SPACE && onGround) {
-			yVelocity = jumpStrength;
-			onGround = false;
+		if (key == KeyEvent.VK_SHIFT) player.runKey = true;
+		
+		if(key == KeyEvent.VK_SPACE && player.onGround) {
+			player.yVelocity = player.jumpStrength;
+			player.onGround = false;
 		}
 	}
 	
@@ -106,14 +73,16 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	public void keyReleased(KeyEvent e) {
 		int key = e.getKeyCode();
 		
-		if (key == KeyEvent.VK_W || key == KeyEvent.VK_UP) up = false;
-		if (key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN) down = false;
-		if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) left = false;
-		if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) right = false;
+		if (key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) player.leftPressed = false;
+		if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) player.rightPressed = false;
+		
+		if (key == KeyEvent.VK_SHIFT) player.runKey = false;
 	}
 	
 	@Override
 	public void keyTyped (KeyEvent e) {
 		
 	}
+    
+	
 }
