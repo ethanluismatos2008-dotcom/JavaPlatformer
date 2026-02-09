@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -13,6 +14,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	private final int FPS = 60;
 	private Player player = new Player(this);
 	public int groundY = 400;
+	ArrayList<Platform> platforms = new ArrayList<>();
+	ArrayList<Coin> coins = new ArrayList<>();
+	
+	//int cameraX = 0;
+	//int cameraY = 0;
+
 	
 	public GamePanel() {
 		setBackground(Color.BLACK);
@@ -20,6 +27,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		addKeyListener(this);
 		requestFocusInWindow();
 		startGameThread();
+		
+		platforms.add(new Platform(100, 350, 200, 20));
+		platforms.add(new Platform(400, 300, 150, 20));
+		
+		coins.add(new Coin(150, 330, 16));
+		coins.add(new Coin(180, 330, 16));
+		coins.add(new Coin(450, 280, 16));
+		coins.add(new Coin(300, 380, 16));
 	}
 	
 	private void startGameThread() {
@@ -39,6 +54,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 			
 			if(delta >= 1) {
 				player.update();
+				player.checkPlatforms(platforms);
 				update();
 				repaint();
 				delta--;
@@ -47,12 +63,28 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	}
 	
 	private void update() {
+		for(Coin coin : coins) {
+			if (player.getBounds().intersects(coin.getBounds())) {
+				coin.collected = true;
+			}
+		}
 		
+		coins.removeIf(coin -> coin.collected);
+		
+		//cameraX = (int) (player.playerX + (player.playerSize/2) - Main.SCREEN_WIDTH / 2);
 	}
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		player.draw(g);
+		
+		for(Platform p : platforms) {
+			p.draw(g);
+		}
+		
+		for(Coin coin : coins) {
+			coin.draw(g);
+		}
 	}
 	
 	public void keyPressed(KeyEvent e) {

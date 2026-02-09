@@ -2,17 +2,19 @@ package main;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.util.ArrayList;
 
 public class Player {
 	
 	public GamePanel gp;
 	public boolean leftPressed, rightPressed;
-	private float playerY = 300;
-	private float playerX = 100;
+	public float playerY = 300;
+	public float playerX = 100;
 	private int maxSpeed = 5;
 	private int walkSpeed = 5;
 	private int runSpeed = 7;
-	private int playerSize = 50;
+	public int playerSize = 50;
 	//Player physics
 	public float xVelocity = 0;
 	public float yVelocity = 0;
@@ -26,6 +28,8 @@ public class Player {
 	public boolean runKey = false;
 	public boolean running = false;
 	public boolean onGround = false;
+	
+	public int score = 0;
 	
 	public Player(GamePanel gp) {
 		this.gp = gp;
@@ -70,6 +74,35 @@ public class Player {
 			}
 		}
 		
+	}
+	
+	public void checkPlatforms(ArrayList<Platform> platforms) {
+		
+		for(Platform p : platforms) {
+			boolean falling = yVelocity > 0;
+			
+			boolean withinX =
+				playerX + playerSize > p.x &&
+				playerX < p.x + p.width;
+				
+			boolean landing = 
+				playerY + playerSize <= p.y + yVelocity &&
+				playerY + playerSize + yVelocity >= p.y;
+				
+			if (falling && withinX && landing) {
+				playerY = p.y - playerSize;
+				yVelocity = 0;
+				onGround = true;
+			}
+		}
+	}
+	
+	public void collectCoin() {
+		score += 1;
+	}
+	
+	public Rectangle getBounds() {
+		return new Rectangle ((int)playerX, (int)playerY, playerSize, playerSize);
 	}
 	
 	
