@@ -16,10 +16,10 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	public int groundY = 400;
 	ArrayList<Platform> platforms = new ArrayList<>();
 	ArrayList<Coin> coins = new ArrayList<>();
-	
-	//int cameraX = 0;
-	//int cameraY = 0;
+	TileMap tileMap = new TileMap("/res/Level1.txt");
 
+	int cameraX = 0;
+	int cameraY = 0;
 	
 	public GamePanel() {
 		setBackground(Color.BLACK);
@@ -27,14 +27,6 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		addKeyListener(this);
 		requestFocusInWindow();
 		startGameThread();
-		
-		platforms.add(new Platform(100, 350, 200, 20));
-		platforms.add(new Platform(400, 300, 150, 20));
-		
-		coins.add(new Coin(150, 330, 16));
-		coins.add(new Coin(180, 330, 16));
-		coins.add(new Coin(450, 280, 16));
-		coins.add(new Coin(300, 380, 16));
 	}
 	
 	private void startGameThread() {
@@ -54,7 +46,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 			
 			if(delta >= 1) {
 				player.update();
-				player.checkPlatforms(platforms);
+				//player.checkPlatforms(platforms);
+				System.out.println(player.onGround);
 				update();
 				repaint();
 				delta--;
@@ -66,25 +59,46 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		for(Coin coin : coins) {
 			if (player.getBounds().intersects(coin.getBounds())) {
 				coin.collected = true;
+				player.collectCoin();
 			}
 		}
+		player.onGround = tileMap.isPlayerOnGround(player);
 		
 		coins.removeIf(coin -> coin.collected);
 		
-		//cameraX = (int) (player.playerX + (player.playerSize/2) - Main.SCREEN_WIDTH / 2);
+		cameraX = (int) (player.playerX + (player.playerSize/2) - Constants.SCREEN_WIDTH / 2);
+		cameraY = (int) (player.playerY + (player.playerSize/2) - Constants.SCREEN_HEIGHT / 2);
 	}
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		player.draw(g);
 		
+		tileMap.draw(g, cameraX, cameraY);
+		g.setColor(Color.WHITE);
+		g.fillRect(
+				(int)(player.playerX - cameraX),
+				(int)(player.playerY - cameraY),
+				player.playerSize,
+				player.playerSize);
+		
+		g.setColor(Color.BLUE);
 		for(Platform p : platforms) {
-			p.draw(g);
+			g.fillRect(
+					p.x - cameraX,
+					p.y - cameraY, 
+					p.width,
+					p.height);
 		}
 		
+		g.setColor(Color.YELLOW);
 		for(Coin coin : coins) {
-			coin.draw(g);
+			g.fillRect(
+					coin.x - cameraX,
+					coin.y - cameraY, 
+					coin.size,
+					coin.size);
 		}
+		g.drawString("Score: " + player.score, 10, 30);
 	}
 	
 	public void keyPressed(KeyEvent e) {

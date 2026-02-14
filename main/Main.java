@@ -4,8 +4,6 @@ import javax.swing.JFrame;
 
 public class Main {
 
-	public static final int SCREEN_WIDTH = 800;
-	public static final int SCREEN_HEIGHT = 600;
 	
 	public static void main(String[] args) {
 	
@@ -13,7 +11,7 @@ public class Main {
 		GamePanel panel = new GamePanel();
 		
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		window.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+		window.setSize(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
 		window.setResizable(true);
 		window.setLocationRelativeTo(null);
 		window.setTitle("My First Game");

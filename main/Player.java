@@ -14,7 +14,7 @@ public class Player {
 	private int maxSpeed = 5;
 	private int walkSpeed = 5;
 	private int runSpeed = 7;
-	public int playerSize = 50;
+	public int playerSize = Constants.TILE_SIZE;
 	//Player physics
 	public float xVelocity = 0;
 	public float yVelocity = 0;
@@ -37,11 +37,16 @@ public class Player {
 	
 	public void update() {
 		
-		yVelocity += gravity;
 		playerY += yVelocity;
 		playerX += xVelocity;
 		
-		if(onGround) running = runKey;
+		if(onGround) {
+			yVelocity = 0;
+			running = runKey;
+		}
+		else {
+			yVelocity += gravity;
+		}
 		
 		if (running == true){
 			maxSpeed = runSpeed;
@@ -50,11 +55,6 @@ public class Player {
 			maxSpeed = walkSpeed;
 		}
 		
-		if(playerY + playerSize >= gp.groundY) {
-			playerY = gp.groundY - playerSize;
-			yVelocity = 0;
-			onGround = true;
-		}
 		if (leftPressed == true) {
 			xVelocity -= accel;
 		}
@@ -76,7 +76,7 @@ public class Player {
 		
 	}
 	
-	public void checkPlatforms(ArrayList<Platform> platforms) {
+	/*public void checkPlatforms(ArrayList<Platform> platforms) {
 		
 		for(Platform p : platforms) {
 			boolean falling = yVelocity > 0;
@@ -94,8 +94,8 @@ public class Player {
 				yVelocity = 0;
 				onGround = true;
 			}
-		}
-	}
+		} 
+	}*/
 	
 	public void collectCoin() {
 		score += 1;
